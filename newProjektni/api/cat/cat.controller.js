@@ -67,6 +67,7 @@ var putTemperature = (req, res) => {
     });
 }
 var feed = (req, res) => {
+    console.log(req)
     updateToFeed(req.body, (err, results) => {
         if (err) {
             console.log(err);
@@ -116,6 +117,7 @@ var getFeedLog = (req, res) => {
             console.log(err);
             return;
         }
+        
         return res.json({
             data: results
         });

@@ -137,7 +137,7 @@ var databasePosition = (data, callBack) => {
 var setPosition = (data, callBack) => {
     connection.query('UPDATE catfeeder SET feednum = ? WHERE feederID = ?',
         [
-            0,
+            data.position,
             data.feederid
 
         ],
@@ -155,11 +155,12 @@ var databaseFeedLog = (data, callBack) => {
             data.feederid
         ],
         (error, results, fields) => {
-            console.log(results)
+            
             if (error) {
                 return callBack(error);
             }
-            return callBack(null, results[0].feednum);
+            
+            return callBack(null, results);
         }
     );
 }
@@ -173,7 +174,7 @@ var databaseTemperatureLog = (data, callBack) => {
             if (error) {
                 return callBack(error);
             }
-            return callBack(null, results[0].feednum);
+            return callBack(null, results);
         }
     );
 }
@@ -186,7 +187,7 @@ var databaseMovementLog = (data, callBack) => {
             if (error) {
                 return callBack(error);
             }
-            return callBack(null, results[0].feednum);
+            return callBack(null, results);
         }
     );
 }
