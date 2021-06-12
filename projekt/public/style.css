@@ -1,0 +1,43 @@
+a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    padding: 5px 8px;
+}
+
+a:hover {
+    color: yellow;
+    text-decoration: none;
+}
+
+nav {
+    background-color: palevioletred;
+    color: white;
+    padding: 30px 60px;
+    display: flex;
+    justify-content:  space-between;
+}
+
+nav ul {
+    display: flex;
+    justify-content:  space-around;
+    align-items: center;
+}
+
+nav li {
+    list-style: none;
+}
+
+nav li a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    padding: 5px 8px;
+}
+
+nav li a:hover {
+    color: yellow;
+    text-decoration: none;
+}
+
+/* https://www.youtube.com/watch?v=SbW4OPSeFus&ab_channel=TelmoSampaio */
