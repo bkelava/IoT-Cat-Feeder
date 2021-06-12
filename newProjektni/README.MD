@@ -1,12 +1,12 @@
-API
+API<br/>
 
 
-POST:
--get logs of time when cat was fed
-    path:/api/cats/feed/log
-    body: {"feederid":"actualfeederid"}
-    return: Descending time logs of feeds in JSON for feederid
-            example: 
+POST:<br/>
+-get logs of time when cat was fed<br/>
+    path:/api/cats/feed/log<br/>
+    body: {"feederid":"actualfeederid"}<br/>
+    return: Descending time logs of feeds in JSON for feederid<br/>
+            example: <br/>
             {
                 "data": [
                     {
@@ -71,17 +71,17 @@ POST:
                     }
                 ]
             }
+<br/>
+-get logs of movement<br/>
+    path:/api/cats/movement/log<br/>
+    body: {"feederid":"actualfeederid"}<br/>
+    return: Descending time logs of registered movements in front of feeder in JSON for feederid, example same as feed log
 
--get logs of movement
-    path:/api/cats/movement/log
-    body: {"feederid":"actualfeederid"}
-    return: Descending time logs of registered movements in front of feeder in JSON for feederid
-
--get logs of temperature
-    path:/api/cats/temperature/log
-    body: {"feederid":"actualfeederid"}
-    return: Descending time logs of registered temperature and coresponding values of temperature at feeder in JSON for feederid
-            example:
+-get logs of temperature<br/>
+    path:/api/cats/temperature/log<br/>
+    body: {"feederid":"actualfeederid"}<br/>
+    return: Descending time logs of registered temperature and coresponding values of temperature at feeder in JSON for feederid<br/>
+            example:<br/>
             {
                 "data": [
                     {
@@ -104,21 +104,21 @@ POST:
                     }
                 ]
             }
+<br/>
+-get number of feeds since last refill <br/>
+    path:/api/cats/position/log<br/>
+    body: {"feederid":"actualfeederid"}<br/>
+    return: returns JSON, example: {"data":1} values 1-3<br/>
 
--get number of feeds since last refill 
-    path:/api/cats/position/log
-    body: {"feederid":"actualfeederid"}
-    return: returns JSON, example: {"data":1} values 1-3
+-feed cat<br/>
+    path:/api/cats/tofeed<br/>
+    body:{"feederid":"actualfeederid","feed":1}<br/>
+    return: result of affected rows can be ignored<br/>
 
--feed cat
-    path:/api/cats/tofeed
-    body:{"feederid":"actualfeederid","feed":1}
-    return: result of affected rows can be ignored
-
--reset feeder
-    path:/api/cats/position/update
-    body:{"feederid":"actualfeederid","feednum":1}
-    return: can be ignored
+-reset feeder<br/>
+    path:/api/cats/position/update<br/>
+    body:{"feederid":"actualfeederid","feednum":1}<br/>
+    return: can be ignored<br/>
 
 
 
