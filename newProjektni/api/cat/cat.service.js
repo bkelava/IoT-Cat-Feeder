@@ -44,7 +44,7 @@ var insertFeed = (data, callBack) => {
                 return callBack(error);
             }
             else{
-                connection.query('UPDATE catfeeder set feednum = feednum + 1 where feederid = ?',
+                connection.query('UPDATE catfeeder set feednum = feednum + 1, feed = 0 where feederid = ?',
                     [
                         data.feederid
                     ],
