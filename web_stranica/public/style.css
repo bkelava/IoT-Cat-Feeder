@@ -40,4 +40,7 @@ nav li a:hover {
     text-decoration: none;
 }
 
+#refreshBtn, #feedBtn, #resetFeedsBtn {
+    margin-left: 50px;
+}
 /* https://www.youtube.com/watch?v=SbW4OPSeFus&ab_channel=TelmoSampaio */

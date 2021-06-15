@@ -35,8 +35,10 @@ exports.login = async (request, response) => {
             else {
                 const id = results[0].id;
                 const feederid=results[0].feederID;
+                const username = results[0].username;
                 response.cookie('userid', id);
                 response.cookie('feederid',feederid);
+                response.cookie('username', username);
                 response.status(200).render("catstation.hbs")
             }
         });
@@ -48,13 +50,14 @@ exports.login = async (request, response) => {
 exports.logout = (request, response) => {
     response.clearCookie('userid');
     response.clearCookie('feederid');
+    response.clearCookie('username');
     response.status(200).render('index');
 }
 
 exports.register = (request, response) => {
     console.log(request.body);
 
-    const {name, password, feederid} =  request.body;
+    const {name, password, feederid, catname} =  request.body;
     if (!name || !password || !feederid) {
         return response.render('register', {
             messageError: 'Provide a valid informations!'
@@ -80,13 +83,21 @@ exports.register = (request, response) => {
                     console.log(error);
                 }
                 else {
+                    db.query("INSERT INTO catfeeder SET ?", {feederID: feederid, catName: catname, feed: 0, feednum: 0 }, (error, results) => {
+                        if (error) {
+                            console.log(error);
+                        }
+                        else {
+                            console.log("CAT ADDED!");
+                        }
+                    });
                     console.log(results);
                     return response.render('register', {
                         message: 'User registred!'
                     })
                 }
             });
-        }});
-    }
+        }
+    });}
     //response.send("Form submitted");
 }

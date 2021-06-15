@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+    <link rel="stylesheet" href="/style.css">    <title>Document</title>
+</head>
+<body onload="hello()">
+    <nav>
+        <h1>Cat Station </h1>
+        <ul>
+            <li>
+            <form action="/auth/logout" method="POST">
+                <button type="submit" class="btn btn-outline-dark btn-lg">Log out</button>
+            </form>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="jumbotron">
+            <div class="container">
+                <h1 id="hellouser"></h1>
+                <br>
+                <h1>Here are some stats for your catfeeder!</h1>
+                <br>
+                <h1 id="feeds"></h1>
+                <button id="loadBtn" type="submit" class="btn btn-success btn-lg" onclick="load()" >Load charts</button>
+                <button id="refreshBtn" type="submit" class="btn btn-warning btn-lg" onclick="refresh()" >Refresh web page</button>
+                <button id="feedBtn" type="submit" class="btn btn-danger btn-lg" onclick="feedCat()" >Click to feed cat!</button>
+                <button id="resetFeedsBtn" type="submit" class="btn btn-primary btn-lg" onclick="resetFeeds()" >Click to reset feeds!</button>
+                <canvas id="myChart1"></canvas>
+                <br>
+                <canvas id="myChart2"></canvas>
+                <br>
+                <canvas id="myChart3"></canvas>
+            </div>
+            <script>
+                function resetFeeds()
+                {
+                    let feederid = getCookie("feederid");
+                    var ajaxFeedlogResponse;
+                    var ajaxFeedlog = new XMLHttpRequest();
+                    ajaxFeedlog.onreadystatechange= function() {
+                        if (this.readyState!==4) 
+                            return; // not ready yet
+                        if (this.status===200) { // HTTP 200 OK
+                            //alert(this.responseText);
+                            ajaxFeedlogResponse = this.responseText;
+                            //console.log(ajaxResponse);
+                        } else {
+                            // server returned an error. Do something with it or ignore it
+                            alert("SERVER ERROR -- UNABLE TO RESET FEEDS");
+                        }
+                    };
+                    ajaxFeedlog.open("POST", "http://127.0.0.1:3053/api/cats/position/update", true);
+                    ajaxFeedlog.setRequestHeader("Content-Type", "application/json");
+                    ajaxFeedlog.send(JSON.stringify({ "feederid": feederid.toString(), "feednum": 0}));
+                }
+
+                function feedCat(){
+                    let feederid = getCookie("feederid");
+                    var ajaxFeedlogResponse;
+                    var ajaxFeedlog = new XMLHttpRequest();
+                    ajaxFeedlog.onreadystatechange= function() {
+                        if (this.readyState!==4) 
+                            return; // not ready yet
+                        if (this.status===200) { // HTTP 200 OK
+                            //alert(this.responseText);
+                            ajaxFeedlogResponse = this.responseText;
+                            //console.log(ajaxResponse);
+                        } else {
+                            // server returned an error. Do something with it or ignore it
+                            alert("SERVER ERROR -- FEEDING CAT");
+                        }
+                    };
+                    ajaxFeedlog.open("POST", "http://127.0.0.1:3053/api/cats/tofeed", true);
+                    ajaxFeedlog.setRequestHeader("Content-Type", "application/json");
+                    ajaxFeedlog.send(JSON.stringify({ "feederid": feederid.toString(), "feed": 1}));
+                }
+
+
+                function hello() {
+                    let username = getCookie("username");              
+                    let feederid = getCookie("feederid");
+                    document.getElementById("hellouser").innerHTML = "Hello user " + username + " your feeder id is " + feederid + " .";
+
+                    var ajaxFeedlogResponse;
+                    var ajaxFeedlog = new XMLHttpRequest();
+                    ajaxFeedlog.onreadystatechange= function() {
+                        if (this.readyState!==4) 
+                            return; // not ready yet
+                        if (this.status===200) { // HTTP 200 OK
+                            //alert(this.responseText);
+                            ajaxFeedlogResponse = this.responseText;
+                            putFeeds(ajaxFeedlogResponse);
+                            //console.log(ajaxResponse);
+                        } else {
+                            // server returned an error. Do something with it or ignore it
+                            alert("SERVER ERROR -- UNABLE TO RESET FEEDS");
+                        }
+                    };
+                    ajaxFeedlog.open("POST", "http://127.0.0.1:3053/api/cats/position/log", true);
+                    ajaxFeedlog.setRequestHeader("Content-Type", "application/json");
+                    ajaxFeedlog.send(JSON.stringify({ "feederid": feederid.toString()}));
+
+                }
+                function putFeeds(ajaxFeedlogResponse)
+                {
+                    var JOSNresult = JSON.parse(ajaxFeedlogResponse);
+                    document.getElementById("feeds").innerHTML = "Number of feeds: " + JOSNresult.data.toString();
+
+                }
+
+                function refresh() {
+                    location.reload();
+                }
+
+                function load() {
+
+                    document.getElementById("loadBtn").disabled = true;
+                    let userid = getCookie("userid");              
+                    let feederid = getCookie("feederid");
+
+                    //FEED LOGS
+                    var ajaxFeedlogResponse;
+                    var ajaxFeedlog = new XMLHttpRequest();
+                    ajaxFeedlog.onreadystatechange= function() {
+                        if (this.readyState!==4) 
+                            return; // not ready yet
+                        if (this.status===200) { // HTTP 200 OK
+                            //alert(this.responseText);
+                            ajaxFeedlogResponse = this.responseText;
+                            drawFeedlogChart(ajaxFeedlogResponse);
+                            //console.log(ajaxResponse);
+                        } else {
+                            // server returned an error. Do something with it or ignore it
+                            alert("SERVER ERROR -- FEED LOG");
+                        }
+                    };
+                    ajaxFeedlog.open("POST", "http://127.0.0.1:3053/api/cats/feed/log", true);
+                    ajaxFeedlog.setRequestHeader("Content-Type", "application/json");
+                    ajaxFeedlog.send(JSON.stringify({ "feederid": feederid.toString()}));
+
+                    //MOVEMENT LOG
+                    var ajaxMovementlogResponse;
+                    var ajaxMovementlog = new XMLHttpRequest();
+                    ajaxMovementlog.onreadystatechange= function() {
+                        if (this.readyState!==4) 
+                            return; // not ready yet
+                        if (this.status===200) { // HTTP 200 OK
+                            //alert(this.responseText);
+                            ajaxMovementlogResponse = this.responseText;
+                            drawMovementLogChart(ajaxMovementlogResponse);
+                            //console.log(ajaxMovementlogResponse);
+                        } else {
+                            // server returned an error. Do something with it or ignore it
+                            alert("SERVER ERROR -- MOVEMENT LOG");
+                        }
+                    };
+                    ajaxMovementlog.open("POST", "http://127.0.0.1:3053/api/cats/movement/log", true);
+                    ajaxMovementlog.setRequestHeader("Content-Type", "application/json");
+                    ajaxMovementlog.send(JSON.stringify({ "feederid": feederid.toString()}));
+
+                    //MOVEMENT LOG
+                    var ajaxTemperaturelogResponse;
+                    var ajaxTemperaturelog = new XMLHttpRequest();
+                    ajaxTemperaturelog.onreadystatechange= function() {
+                        if (this.readyState!==4) 
+                            return; // not ready yet
+                        if (this.status===200) { // HTTP 200 OK
+                            //alert(this.responseText);
+                            ajaxTemperaturelogResponse = this.responseText;
+                            drawTemperatureLogChart(ajaxTemperaturelogResponse);
+                            //console.log(ajaxMovementlogResponse);
+                        } else {
+                            // server returned an error. Do something with it or ignore it
+                            alert("SERVER ERROR -- MOVEMENT LOG");
+                        }
+                    };
+                    ajaxTemperaturelog.open("POST", "http://127.0.0.1:3053/api/cats/temperature/log", true);
+                    ajaxTemperaturelog.setRequestHeader("Content-Type", "application/json");
+                    ajaxTemperaturelog.send(JSON.stringify({ "feederid": feederid.toString()}));
+
+                }
+
+                function drawFeedlogChart(chartDataJSON) {
+                    var jsonData = JSON.parse(chartDataJSON);
+                    var dictionary  = new Object();
+
+                    for (var i = 0; i<jsonData.data.length; i++)
+                    {
+                        var date = parseIsoDatetime(jsonData.data[i].time).toDateString();
+
+                        const hasKey = date in dictionary;
+                        if (!hasKey)
+                        {
+                            dictionary[date] = 1;
+                        }
+                        else 
+                        {
+                            var dictValue = dictionary[date];
+                            dictValue++;
+                            dictionary[date] = dictValue;
+                        }
+                    }
+
+                    let myChart1 = document.getElementById('myChart1').getContext('2d');
+                    let mChart = new Chart(myChart1, {
+                        type: 'bar',
+                        data: {
+                            labels: Object.keys(dictionary),
+                            datasets:[{
+                                label: 'Feed log',
+                                data: Object.values(dictionary),
+                                backgroundColor: [
+                                    'rgba(50, 128, 255, 1)'
+                                ]
+                            }]
+                        },
+                        options:{}
+                    });
+                }
+
+                function drawMovementLogChart(chartDataJSON) {
+                    var jsonData = JSON.parse(chartDataJSON);
+                   
+                    var dictionary  = new Object();
+
+                    for (var i = 0; i<jsonData.data.length; i++)
+                    {
+                        var date = parseIsoDatetime(jsonData.data[i].time).toDateString();
+
+                        const hasKey = date in dictionary;
+                        if (!hasKey)
+                        {
+                            dictionary[date] = 1;
+                        }
+                        else 
+                        {
+                            var dictValue = dictionary[date];
+                            dictValue++;
+                            dictionary[date] = dictValue;
+                        }
+                    }
+
+                    let myChart1 = document.getElementById('myChart2').getContext('2d');
+                    let mChart = new Chart(myChart1, {
+                        type: 'bar',
+                        data: {
+                            labels: Object.keys(dictionary),
+                            datasets:[{
+                                label: 'Movement log',
+                                data: Object.values(dictionary),
+                                backgroundColor: [
+                                    'rgba(255, 128, 128, 1)'
+                                    ]
+                            }]
+                        },
+                        options:{}
+                    });
+                }
+
+                function drawTemperatureLogChart(chartDataJSON) {
+                    var jsonData = JSON.parse(chartDataJSON);
+                   
+                    var dictionary  = new Object();
+                    var dictionaryTemperature = new Object();
+                    //console.log(jsonData);
+                    for (var i = 0; i<jsonData.data.length; i++)
+                    {
+                        var date = parseIsoDatetime(jsonData.data[i].time).toDateString();
+
+                        const hasKey = date in dictionary;
+                        if (!hasKey)
+                        {
+                            dictionary[date] = 1
+                            dictionaryTemperature[date] = jsonData.data[i].temperature;
+                        }
+                        else 
+                        {
+                            var dictValue = dictionary[date];
+                            dictValue++;
+                            dictionary[date] = dictValue;
+
+                            var temperature = dictionaryTemperature[date];
+                            temperature = temperature + jsonData.data[i].temperature;
+                            dictionaryTemperature[date] = temperature;
+                        }
+                    }
+
+                    for (key in dictionaryTemperature)
+                    {
+                        var count = dictionary[key];
+                        var temperature = dictionaryTemperature[key];
+
+                        temperature = temperature / count;
+
+                        dictionaryTemperature[key] = temperature;
+                    }
+
+                    let myChart1 = document.getElementById('myChart3').getContext('2d');
+                    let mChart = new Chart(myChart1, {
+                        type: 'bar',
+                        data: {
+                            labels: Object.keys(dictionaryTemperature),
+                            datasets:[{
+                                label: 'Average Temperature log',
+                                data: Object.values(dictionaryTemperature),
+                                backgroundColor: [
+                                    'rgba(55, 255, 55, 1)'
+                                    ]
+                            }]
+                        },
+                        options:{}
+                    });
+                }
+
+
+                function getCookie(name) {
+                    // Split cookie string and get all individual name=value pairs in an array
+                    var cookieArr = document.cookie.split(";");
+
+                    // Loop through the array elements
+                    for(var i = 0; i < cookieArr.length; i++) {
+                        var cookiePair = cookieArr[i].split("=");
+
+                        /* Removing whitespace at the beginning of the cookie name
+                        and compare it with the given string */
+                        if(name == cookiePair[0].trim()) {
+                            // Decode the cookie value and return
+                            return decodeURIComponent(cookiePair[1]);
+                        }
+                    }
+
+                    // Return null if not found
+                    return null;
+                }
+
+                function parseIsoDatetime(dtstr) {
+                    var dt = dtstr.split(/[: T-]/).map(parseFloat);
+                    return new Date(dt[0], dt[1] - 1, dt[2], dt[3] || 0, dt[4] || 0, dt[5] || 0, 0);
+                }
+            </script>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.3.2/chart.js" integrity="sha512-CAv0l04Voko2LIdaPmkvGjH3jLsH+pmTXKFoyh5TIimAME93KjejeP9j7wSeSRXqXForv73KUZGJMn8/P98Ifg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</body>
+</html>
